@@ -1,0 +1,114 @@
+-- Function to create a new square
+local function createSquare(color, thickness, filled)
+    local square = Drawing.new("Square")
+    square.Visible = true
+    square.Color = color
+    square.Thickness = thickness
+    square.Filled = filled
+    return square
+end
+
+-- Variables
+local localPlayer = game.Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local players = game:GetService("Players")
+
+-- Settings
+local boxColor = Color3.new(0.8, 0.8, 0.8) -- Light grey
+local healthBarColor = Color3.new(0, 1, 0) -- Green
+
+-- Tables to store drawings
+local boxOutlines = {}
+local healthBars = {}
+
+-- Initialize boxes and health bars for all players
+for _, player in ipairs(players:GetPlayers()) do
+    if player ~= localPlayer then
+        boxOutlines[player] = createSquare(boxColor, 1, false)
+        healthBars[player] = createSquare(healthBarColor, 1, true)
+    end
+end
+
+-- Update when new players join
+players.PlayerAdded:Connect(function(player)
+    if player ~= localPlayer then
+        boxOutlines[player] = createSquare(boxColor, 1, false)
+        healthBars[player] = createSquare(healthBarColor, 1, true)
+    end
+end)
+
+-- Remove drawings when players leave
+players.PlayerRemoving:Connect(function(player)
+    if boxOutlines[player] then
+        boxOutlines[player]:Remove()
+        healthBars[player]:Remove()
+        boxOutlines[player] = nil
+        healthBars[player] = nil
+    end
+end)
+
+-- Render Stepped Loop
+game:GetService("RunService").RenderStepped:Connect(function()
+    for _, player in ipairs(players:GetPlayers()) do
+        if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local character = player.Character
+            local humanoid = character:FindFirstChild("Humanoid")
+            local rootPart = character.HumanoidRootPart
+
+            if humanoid and humanoid.Health > 0 then
+                -- Calculate the bounding box of the player's character
+                local size = character:GetExtentsSize()
+                local center = rootPart.Position
+
+                -- Get screen position
+                local topLeft, topLeftOnScreen = camera:WorldToViewportPoint(center + Vector3.new(-size.X / 2, size.Y / 2, 0))
+                local bottomRight, bottomRightOnScreen = camera:WorldToViewportPoint(center + Vector3.new(size.X / 2, -size.Y / 2, 0))
+
+                -- Only render if the player is in front of the camera (Z should be positive)
+                if topLeftOnScreen and bottomRightOnScreen then
+                    -- Check if both points are visible on the screen (Z > 0)
+                    if topLeft.Z > 0 and bottomRight.Z > 0 then
+                        -- Calculate position and size of the player's box outline
+                        local boxPosition = Vector2.new(topLeft.X, topLeft.Y)
+                        local boxSize = Vector2.new(bottomRight.X - topLeft.X, bottomRight.Y - topLeft.Y)
+
+                        -- Update box outline
+                        local boxOutline = boxOutlines[player]
+                        boxOutline.Size = boxSize
+                        boxOutline.Position = boxPosition
+                        boxOutline.Visible = true
+
+                        -- Update health bar
+                        local healthRatio = humanoid.Health / humanoid.MaxHealth
+                        local healthBarHeight = boxSize.Y * healthRatio -- health proportionate to height
+                        local healthBarWidth = 5 -- Fixed width for the health bar
+
+                        -- Ensure the health bar doesn't exceed the box size
+                        healthBarHeight = math.clamp(healthBarHeight, 0, boxSize.Y)
+
+                        -- Position the health bar just above the bottom of the box
+                        healthBars[player].Size = Vector2.new(healthBarWidth, healthBarHeight)
+                        healthBars[player].Position = Vector2.new(boxPosition.X - 6, boxPosition.Y + boxSize.Y - healthBarHeight)
+                        healthBars[player].Visible = true
+                    else
+                        -- Hide if player is behind the camera (Z <= 0)
+                        boxOutlines[player].Visible = false
+                        healthBars[player].Visible = false
+                    end
+                else
+                    -- Hide if player is off-screen
+                    boxOutlines[player].Visible = false
+                    healthBars[player].Visible = false
+                end
+            else
+                -- Hide if player is dead or invalid
+                boxOutlines[player].Visible = false
+                healthBars[player].Visible = false
+            end
+        elseif boxOutlines[player] then
+            -- Hide if character doesn't exist
+            boxOutlines[player].Visible = false
+            healthBars[player].Visible = false
+        end
+    end
+end)
