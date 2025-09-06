@@ -5108,8 +5108,8 @@ function Compkiller:SetTheme(name)
 		};
 	elseif name == "Default" then
 		Compkiller.Colors = {
-			Highlight = Color3.fromRGB(17, 238, 253),
-			Toggle = Color3.fromRGB(14, 203, 213),
+			Highlight = Color3.fromRGB(255, 255, 255),
+			Toggle = Color3.fromRGB(230, 230, 230),
 			Risky = Color3.fromRGB(251, 255, 39),
 			BGDBColor = Color3.fromRGB(22, 24, 29),
 			BlockColor = Color3.fromRGB(28, 29, 34),
