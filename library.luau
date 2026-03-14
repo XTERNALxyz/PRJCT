@@ -2331,6 +2331,7 @@ end
                 Position = UDim2New(0, 6, 0, 1),
                 BorderSizePixel = 0,
                 TextSize = 12,
+                RichText = true,
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })  Items["Title"]:AddToTheme({TextColor3 = "Text"})
 
