@@ -3660,24 +3660,6 @@ end
             Toggle:Set()
         end)
 
-        Items["Toggle"]:Connect("InputBegan", function(Input)
-            if Input.UserInputType == Enum.UserInputType.Touch then
-                -- check if touch is over any colorpicker button
-                local TouchPos = Input.Position
-                for _, Child in Items["Toggle"].Instance:GetChildren() do
-                   if Child:IsA("TextButton") then
-                       local AbsPos = Child.AbsolutePosition
-                        local AbsSize = Child.AbsoluteSize
-                        if TouchPos.X >= AbsPos.X and TouchPos.X <= AbsPos.X + AbsSize.X
-                        and TouchPos.Y >= AbsPos.Y and TouchPos.Y <= AbsPos.Y + AbsSize.Y then
-                            return -- don't fire toggle if touching colorpicker
-                        end
-                    end
-                end
-                Toggle:Set()
-            end
-        end)
-
         if Toggle.Default then 
             Toggle:Set(Toggle.Default)
         end
