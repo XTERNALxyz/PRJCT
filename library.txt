@@ -4894,7 +4894,7 @@ local Library do
         return Listbox
     end
 end
---
+--[[
 local Window = Library:Window({
     Name = "you can change the name here",
     --Size = UDim2.new(0, 600, 0, 400),
@@ -5280,6 +5280,6 @@ do -- Settings Tab
 end
 
 Library:Notification(string.format("Loaded in %.4f seconds", os.clock() - LoadingTick), 5, Library.Theme.Accent, {"rbxassetid://135757045959142", Color3.fromRGB(149, 255, 139)})
---
+]]--
 getgenv().Library = Library
 return Library
