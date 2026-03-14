@@ -3726,7 +3726,7 @@ end
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })  Items["Text"]:AddToTheme({TextColor3 = "Text"})
             
-            Items["TextBorder"] = Instances:Create("UIStroke", {
+            Instances:Create("UIStroke", {
                 Parent = Items["Text"].Instance,
                 LineJoinMode = Enum.LineJoinMode.Miter,
                 Name = "\0"
@@ -3753,7 +3753,7 @@ end
             Items["Button"]:Tween(nil, {BackgroundColor3 = Library.Theme.Accent})
 
             task.wait(0.1)
-
+ 
             Items["Text"]:ChangeItemTheme({TextColor3 = "Text"})
             Items["Button"]:ChangeItemTheme({BackgroundColor3 = "Element"})
 
@@ -3912,6 +3912,7 @@ end
         end
 
         function Slider:Set(Value)
+            if not Slider.Min or not Slider.Max then return end
             Slider.Value = MathClamp(Library:Round(Value, Slider.Decimals), Slider.Min, Slider.Max)
 
             Library.Flags[Slider.Flag] = Slider.Value
